@@ -13,7 +13,7 @@ struct SportTimerApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            MainFlow()
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
         }
     }
