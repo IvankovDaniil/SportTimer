@@ -9,5 +9,4 @@ import SwiftUI
 
 struct User {
     var avatar: Image
-    var name: String
 }

@@ -7,28 +7,42 @@
 
 import SwiftUI
 
+enum TabFlow {
+    case home, timer, history, profile
+}
+
 struct MainFlow: View {
+    @StateObject var timerViewModel: TimerViewModel = TimerViewModel()
+    
+    @State var tabFlow: TabFlow = .home
+    
     var body: some View {
-        TabView {
-            HomeView()
+        TabView(selection: $tabFlow) {
+            HomeView(timerViewModel: timerViewModel, action: {
+                tabFlow = .timer
+            })
                 .tabItem {
                     Label("Home", systemImage: "house")
                 }
+                .tag(TabFlow.home)
             
-            HomeView()
+            TimerView(timerViewModel: timerViewModel)
                 .tabItem {
                     Label("Timer", systemImage: "timer")
                 }
+                .tag(TabFlow.timer)
             
-            HomeView()
+            HistoryView()
                 .tabItem {
                     Label("History", systemImage: "clock")
                 }
+                .tag(TabFlow.history)
             
-            HomeView()
+            ProfileView()
                 .tabItem {
                     Label("Profile", systemImage: "person.crop.circle")
                 }
+                .tag(TabFlow.profile)
         }
 
     }

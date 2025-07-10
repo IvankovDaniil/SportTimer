@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct TimerView: View {
-    @StateObject var timerViewModel: TimerViewModel = TimerViewModel()
-    @State var notes: String = ""
+    @Environment(\.scenePhase) var scene
+    @ObservedObject var timerViewModel: TimerViewModel
     
     var body: some View {
         VStack(spacing: 30) {
@@ -31,7 +31,7 @@ struct TimerView: View {
                     .font(type: .semibold)
                 Spacer()
                 Picker("Type training", selection: $timerViewModel.type) {
-                    ForEach(TypeTraining.allCases) { training in
+                    ForEach(WorkoutType.allCases) { training in
                         Text(training.type)
                             .font(type: .regular)
                             .tag(training)
@@ -43,23 +43,28 @@ struct TimerView: View {
                 Text("Notes:")
                     .font(type: .semibold)
                 
-                TextEditor(text: $notes)
+                TextEditor(text: $timerViewModel.notes)
                     .frame(height: 200)
             }
         }
         .padding(.horizontal, 16)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(.bg)
+        .overlay {
+            if timerViewModel.isAdd {
+                AddTrainingView()
+            }
+        }
+        .onChange(of: scene) { newValue in
+            if newValue == .active {
+                timerViewModel.updateTimer()
+            }
+        }
     }
 }
 
-
-#Preview {
-    TimerView(timerViewModel: TimerViewModel())
-}
-
-
 private struct ActionTimerButtonView: View {
+    @Environment(\.managedObjectContext) var context
     @ObservedObject var viewModel: TimerViewModel
     
     var body: some View {
@@ -81,7 +86,9 @@ private struct ActionTimerButtonView: View {
             }
             
             Button {
+                viewModel.saveWorkout(context: context)
                 viewModel.stopTimer()
+            
             } label: {
                 Image(systemName: "stop.circle")
                     .resizable()
@@ -90,5 +97,20 @@ private struct ActionTimerButtonView: View {
 
         }
         .frame(maxWidth: .infinity)
+    }
+}
+
+
+private struct AddTrainingView: View {
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 12)
+                .fill(.success)
+                .opacity(0.7)
+            
+            Text("Workout added")
+                .font(type: .bold)
+        }
+        .frame(width: 220, height: 100)
     }
 }
