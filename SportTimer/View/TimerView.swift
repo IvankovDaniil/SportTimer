@@ -73,6 +73,8 @@ private struct ActionTimerButtonView: View {
     @Environment(\.managedObjectContext) var context
     @ObservedObject var viewModel: TimerViewModel
     
+    @State private var showAlerts: Bool = false
+    
     var body: some View {
         HStack {
             Button {
@@ -92,13 +94,17 @@ private struct ActionTimerButtonView: View {
             }
             
             Button {
-                viewModel.saveWorkout(context: context)
-                viewModel.stopTimer()
-            
+                showAlerts.toggle()
             } label: {
                 Image(systemName: "stop.circle")
                     .resizable()
                     .frame(width: 44, height: 44)
+            }
+            .alert("Are you sure you want to finish workout", isPresented: $showAlerts) {
+                Button("Yes", role: .destructive) {
+                    viewModel.saveWorkout(context: context)
+                    viewModel.stopTimer()
+                }
             }
 
         }

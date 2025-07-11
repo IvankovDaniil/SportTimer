@@ -18,13 +18,15 @@ struct ProfileView: View {
     
     @AppStorage("isMusicEnable") var isMusicEnable: Bool = true
     
+    @State private var showAlerts: Bool = false
+    
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 30) {
                     ProfileImageView()
                     
-                    VStack(spacing: 5) {
+                    VStack(spacing: 10) {
                         Text("Statistics")
                             .font(type: .bold)
                         HStack {
@@ -33,14 +35,20 @@ struct ProfileView: View {
                         }
                         HStack {
                             Button {
-                                profileViewModel.resetStats(workouts: Array(workouts), context: context)
+                                showAlerts.toggle()
                             } label: {
                                 ZStack {
                                     RoundedRectangle(cornerRadius: 8)
                                         .fill(.warning)
+                                        .frame(height: 50)
                                     
                                     Text("Reset statistics")
                                         .font(type: .bold)
+                                }
+                            }
+                            .alert("Are you sure?", isPresented: $showAlerts) {
+                                Button("Yes", role: .destructive) {
+                                    profileViewModel.resetStats(workouts: Array(workouts), context: context)
                                 }
                             }
                         }
@@ -114,14 +122,20 @@ private struct ProfileStatisticsView: View {
     let workouts: [Workout]
     
     var body: some View {
-        VStack(alignment: .leading) {
-            Text("Total workouts: \(workouts.count)")
+        ZStack(alignment: .leading) {
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(.second, lineWidth: 1)
             
-            ForEach(WorkoutType.allCases) { type in
-                Text("\(type.type): \(viewModel.getStats(workouts: workouts, type: type))")
+            VStack(alignment: .leading) {
+                Text("Total workouts: \(workouts.count)")
+                
+                ForEach(WorkoutType.allCases) { type in
+                    Text("\(type.type): \(viewModel.getStats(workouts: workouts, type: type))")
+                }
             }
+            .padding(8)
+            .font(type: .semibold)
         }
-        .font(type: .semibold)
     }
 }
 
