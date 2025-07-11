@@ -14,22 +14,13 @@ struct HomeView: View {
     @FetchRequest(sortDescriptors: [NSSortDescriptor(keyPath: \Workout.date, ascending: false)], animation: .default)
     private var workouts: FetchedResults<Workout>
     
+    let homeViewModel = HomeViewModel()
+    
     let action: () -> Void
     
     var body: some View {
         VStack(alignment: .leading) {
-            HStack {
-                Image(systemName: "person.crop.circle")
-                    .resizable()
-                    .frame(width: 30, height: 30)
-                    .clipShape(Circle())
-                Text("Hello, user")
-                    .font(type: .semibold)
-                Spacer()
-                Text("Total workouts: \(workouts.count) ")
-                    .font(type: .secondary, .txtSecondary)
-            }
-            .font(type: .regular)
+            HomeGreetingsView(viewModel: homeViewModel, workouts: Array(workouts))
             
             Spacer()
             
@@ -58,6 +49,37 @@ struct HomeView: View {
         .background(.bg)
         .padding(.bottom, 8)
         
+    }
+}
+
+private struct HomeGreetingsView: View {
+    let viewModel: HomeViewModel
+    @AppStorage("userAvatar") private var imageData: Data?
+    let workouts: [Workout]
+    
+    var body: some View {
+        HStack {
+            if let imageData, let uiImage = UIImage(data: imageData) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .frame(width: 30, height: 30)
+                    .clipShape(Circle())
+            } else {
+                Image(systemName: "person.crop.circle")
+                    .resizable()
+                    .frame(width: 30, height: 30)
+                    .clipShape(Circle())
+            }
+            Text("Hello, user")
+                .font(type: .semibold)
+            Spacer()
+            Text("Total workouts: \(workouts.count) ")
+                .font(type: .secondary, .txtSecondary)
+            
+            Text(viewModel.countTotalDuration(workouts: workouts))
+                .font(type: .secondary, .txtSecondary)
+        }
+        .font(type: .regular)
     }
 }
 

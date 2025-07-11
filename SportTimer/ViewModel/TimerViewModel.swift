@@ -19,6 +19,12 @@ final class TimerViewModel: ObservableObject {
     
     @Published var isAdd: Bool = false // Добавление тренировки
     
+    let audioPlayer = AudioPlayer() //Звук нотификаций
+    
+    var timeFormatted: String {
+        timeElapsed.timeFormatted // HH:MM:SS
+    }
+    
     private var timer: Timer?
     private var startDate: Date?
     
@@ -27,7 +33,7 @@ final class TimerViewModel: ObservableObject {
             return
         }
         timerState = .running
-        
+        audioPlayer.makeSound(name: "start")
         startDate = Date().addingTimeInterval(-TimeInterval(timeElapsed))
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
             self?.tick()
@@ -39,7 +45,7 @@ final class TimerViewModel: ObservableObject {
         guard timerState != .stop else {
             return
         }
-        
+        audioPlayer.makeSound(name: "stop")
         timer?.invalidate()
         timer = nil
         timerState = .stop
@@ -58,7 +64,7 @@ final class TimerViewModel: ObservableObject {
         guard timerState != .pause else {
             return
         }
-        
+        audioPlayer.makeSound(name: "pause")
         timer?.invalidate()
         timerState = .pause
     }
@@ -106,20 +112,5 @@ final class TimerViewModel: ObservableObject {
 extension TimerViewModel {
     enum TimerState {
         case stop, running, pause
-    }
-}
-
-//MARK: - Форматирование во время
-extension TimerViewModel {
-    var timeFormatted: String {
-        let hours = timeElapsed / 3600
-        let minutes = (timeElapsed % 3600) / 60
-        let seconds = timeElapsed % 60
-        
-        if hours > 0 {
-            return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
-        } else {
-            return String(format: "%02d:%02d", minutes, seconds)
-        }
     }
 }

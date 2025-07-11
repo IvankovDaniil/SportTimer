@@ -10,6 +10,7 @@ import SwiftUI
 struct TimerView: View {
     @Environment(\.scenePhase) var scene
     @ObservedObject var timerViewModel: TimerViewModel
+    @FocusState private var isFocused: Bool
     
     var body: some View {
         VStack(spacing: 30) {
@@ -44,7 +45,9 @@ struct TimerView: View {
                     .font(type: .semibold)
                 
                 TextEditor(text: $timerViewModel.notes)
+                    .focused($isFocused)
                     .frame(height: 200)
+                    
             }
         }
         .padding(.horizontal, 16)
@@ -59,6 +62,9 @@ struct TimerView: View {
             if newValue == .active {
                 timerViewModel.updateTimer()
             }
+        }
+        .onTapGesture {
+            isFocused = false
         }
     }
 }
